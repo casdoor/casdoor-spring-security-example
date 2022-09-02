@@ -1,0 +1,17 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          casdoor:
+            client-id: <Client Id>
+            client-secret: <Client Secret>
+            scope: read,write
+            authorization-grant-type: authorization_code
+            redirect-uri: http://<Spring Application Hostname>:8080/login/oauth2/code/custom
+        provider:
+          casdoor:
+            authorization-uri: http://<Casdoor Hostname>:8000/login/oauth/authorize
+            token-uri: http://<Casdoor Hostname>:8000/api/login/oauth/access_token
+            user-info-uri: http://<Casdoor Hostname>:8000/api/get-account
+            user-name-attribute: name
