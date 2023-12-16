@@ -4,14 +4,14 @@ spring:
       client:
         registration:
           casdoor:
-            client-id: <Client Id>
-            client-secret: <Client Secret>
+            client-id: 294b09fbc17f95daf2fe
+            client-secret: dd8982f7046ccba1bbd7851d5c1ece4e52bf039d
             scope: read,write
             authorization-grant-type: authorization_code
-            redirect-uri: http://<Spring Application Hostname>:8080/login/oauth2/code/custom
+            redirect-uri: http://localhost:8080/login/oauth2/code/custom
         provider:
           casdoor:
-            authorization-uri: http://<Casdoor Hostname>:8000/login/oauth/authorize
-            token-uri: http://<Casdoor Hostname>:8000/api/login/oauth/access_token
-            user-info-uri: http://<Casdoor Hostname>:8000/api/get-account
+            authorization-uri: https://door.casdoor.com/login/oauth/authorize
+            token-uri: https://door.casdoor.com/api/login/oauth/access_token
+            user-info-uri: https://door.casdoor.com/api/get-account
             user-name-attribute: name
