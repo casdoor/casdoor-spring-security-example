@@ -9,11 +9,21 @@
 <body>
 <nav
         class="navbar navbar-expand-lg navbar-light bg-light shadow-sm p-3 mb-5">
-    <a class="navbar-brand" th:href="@{/foos/}">Spring OAuth Client Thymeleaf</a>
+    <a class="navbar-brand" th:href="@{/foos.html/}">Spring OAuth Client Thymeleaf</a>
 </nav>
 <div class="container">
     <label>Welcome ! </label> <br/> <a th:href="@{/foos/}"
                                        class="btn btn-primary">Login</a>
 </div>
+
 </body>
+<!-- Add JavaScript code to display popup -->
+<script>
+    // Check if the logoutSuccess flag is present
+    var logoutSuccess = [[${logoutSuccess}]];
+    if (logoutSuccess) {
+        // Display a popup indicating successful logout
+        alert("Logout successful!");
+    }
+</script>
 </html>
