@@ -14,7 +14,6 @@ public class UiSecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login().and()
                 .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutUrl("http://localhost:7001/api/logout")
                 .invalidateHttpSession(true)
                 .permitAll();
     }
