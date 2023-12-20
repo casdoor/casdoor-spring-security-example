@@ -2,6 +2,8 @@
 
 This example shows how a Spring Security application can connect to Casdoor via OAuth 2.0.
 
+![demo](https://github.com/casdoor/casdoor-spring-security-example/assets/3787410/ddc81f02-a608-4342-8d92-cf52dcc25814)
+
 ## Deploy Casdoor
 
 We assume you have deployed Casdoor in your own URL (refer to: [Server Installation](https://casdoor.org/docs/basic/server-installation)), in this example, we use the Casdoor demo site: https//door.casdoor.com
