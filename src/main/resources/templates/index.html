@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Spring OAuth Client Thymeleaf</title>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.3/css/bootstrap.min.css"/>
+    <meta charset="utf-8"/>
+    <title>Casdoor Spring Security Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.3/css/bootstrap.min.css"/>
 </head>
 <body>
-<nav
-        class="navbar navbar-expand-lg navbar-light bg-light shadow-sm p-3 mb-5">
-    <a class="navbar-brand" th:href="@{/foos.html/}">Spring OAuth Client Thymeleaf</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm p-3 mb-5">
+    <a class="navbar-brand" th:href="@{/}">Casdoor Spring Security Example</a>
 </nav>
 <div class="container">
-    <label>Welcome ! </label> <br/> <a th:href="@{/foos/}"
-                                       class="btn btn-primary">Login</a>
+    <p>Welcome!</p>
+    <a sec:authorize="!isAuthenticated()" th:href="@{/foos}" class="btn btn-primary">Login</a>
+    <a sec:authorize="isAuthenticated()" th:href="@{/foos}" class="btn btn-primary">Foos</a>
 </div>
-
 </body>
-<!-- Add JavaScript code to display popup -->
 </html>

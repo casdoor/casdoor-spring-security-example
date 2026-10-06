@@ -1,18 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Spring OAuth Client Thymeleaf</title>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.3/css/bootstrap.min.css"/>
+    <meta charset="utf-8"/>
+    <title>Casdoor Spring Security Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.3/css/bootstrap.min.css"/>
 </head>
 <body>
-<nav
-        class="navbar navbar-expand-lg navbar-light bg-light shadow-sm p-3 mb-5">
-    <a class="navbar-brand" th:href="@{/foos/}">Spring OAuth Client Thymeleaf</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm p-3 mb-5">
+    <a class="navbar-brand" th:href="@{/}">Casdoor Spring Security Example</a>
     <ul class="navbar-nav ml-auto">
-        <li class="navbar-text">Hi, <span sec:authentication="name">preferred_username</span>&nbsp;&nbsp;&nbsp;
-        </li>
+        <li class="navbar-text">Hi, <span sec:authentication="name">user</span></li>
     </ul>
 </nav>
 <div class="container">
@@ -25,19 +22,32 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:if="${foos.empty}">
-            <td colspan="4">No foos</td>
-        </tr>
         <tr th:each="foo : ${foos}">
-            <td><span th:text="${foo.id}"> ID </span></td>
-            <td><span th:text="${foo.name}"> Name </span></td>
+            <td th:text="${foo.id}">ID</td>
+            <td th:text="${foo.name}">Name</td>
         </tr>
         </tbody>
     </table>
-</div>
-<div class="container">
-    <label>Thank you </label> <br/>
-    <a th:href="@{/logout/}" class="btn btn-danger">Logout</a> <!--logout redirect -->
+
+    <h2>You</h2>
+    <table class="table table-bordered">
+        <tr>
+            <td>Name</td>
+            <td th:text="${user.name}">name</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td th:text="${user.email}">email</td>
+        </tr>
+        <tr>
+            <td>Authorities</td>
+            <td th:text="${user.authorities}">authorities</td>
+        </tr>
+    </table>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
 </div>
 </body>
 </html>

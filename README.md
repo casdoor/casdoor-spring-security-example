@@ -1,122 +1,74 @@
-# casdoor-spring-security-example
+# Casdoor Spring Security Example
 
-This example shows how a Spring Security application can connect to Casdoor via OAuth 2.0.
+[![Build](https://github.com/casdoor/casdoor-spring-security-example/actions/workflows/build.yml/badge.svg)](https://github.com/casdoor/casdoor-spring-security-example/actions/workflows/build.yml)
+[![License](https://img.shields.io/github/license/casdoor/casdoor-spring-security-example)](https://github.com/casdoor/casdoor-spring-security-example/blob/master/LICENSE)
+[![Discord](https://img.shields.io/discord/1022748306096537660?logo=discord&label=discord&color=5865F2)](https://discord.gg/5rPsrAzK7S)
+
+An example Spring Security app that signs users in with [Casdoor](https://casdoor.ai/) over OAuth 2.0 / OpenID Connect, using [casdoor-spring-boot-starter](https://github.com/casdoor/casdoor-spring-boot-starter).
 
 ![demo](https://github.com/casdoor/casdoor-spring-security-example/assets/3787410/ddc81f02-a608-4342-8d92-cf52dcc25814)
 
-## Deploy Casdoor
+| Page    | Description                                                    |
+|---------|----------------------------------------------------------------|
+| `/`     | Public welcome page with a **Login** button                    |
+| `/foos` | Protected page, shows some data and the signed-in user        |
+| `/logout` (POST) | Signs out of the app and ends the Casdoor session     |
 
-We assume you have deployed Casdoor in your own URL (refer to: [Server Installation](https://casdoor.org/docs/basic/server-installation)), in this example, we use the Casdoor demo site: https//door.casdoor.com
+## How it works
+
+1. casdoor-spring-boot-starter reads the `casdoor.*` properties and registers a Spring Security OAuth2 client named `casdoor` (endpoints from Casdoor's OIDC discovery, scopes `openid profile email`).
+2. [SecurityConfig](src/main/java/org/casdoor/example/SecurityConfig.java) keeps `/` public, protects everything else and turns on `oauth2Login()`.
+3. Visiting `/foos` without a session redirects to `/oauth2/authorization/casdoor` and then to the Casdoor sign-in page.
+4. Casdoor redirects back to `http://localhost:8080/login/oauth2/code/casdoor`. Spring Security checks the state, exchanges the code for tokens and verifies the ID token.
+5. Controllers get the user as an `OidcUser` (`@AuthenticationPrincipal`), its name is the Casdoor username (`preferred_username`).
+6. `POST /logout` ends the Spring session and calls Casdoor's logout API with the access token (`AuthService.logoutCurrentSession()`), so the next sign-in asks for the password again.
+
+## Prerequisites
+
+- Java 17+
+- Maven 3.9+ (or your IDE)
+- A Casdoor server. The example is preconfigured for the public demo server https://door.casdoor.com, so it runs as is. To use your own, see [Casdoor installation](https://casdoor.ai/docs/basic/server-installation).
 
 ## Configuration
 
-In the application edit page of your Casdoor (like: https://door.casdoor.com/applications/casbin/app-vue-python-example), you can get the `Client ID` and `Client secret` of the application. Remember to add your application's URL: `http://localhost:8080/` to Casdoor's "Redirect URLs":
+Skip this section to try the example with the public demo server.
 
-![Casdoor Application Setting](https://casdoor.org/assets/images/appsetting_spring_security-f2662d02db2032cea21f3b39b03b6c60.png)
-
-Open in a browser: https://door.casdoor.com/.well-known/openid-configuration, you will get the OIDC endpoints of Casdoor.
-
-```json
-{
-  "issuer": "https://door.casdoor.com",
-  "authorization_endpoint": "https://door.casdoor.com/login/oauth/authorize",
-  "token_endpoint": "https://door.casdoor.com/api/login/oauth/access_token",
-  "userinfo_endpoint": "https://door.casdoor.com/api/userinfo",
-  "jwks_uri": "https://door.casdoor.com/.well-known/jwks",
-  "introspection_endpoint": "https://door.casdoor.com/api/login/oauth/introspect",
-  "response_types_supported": [
-    "code",
-    "token",
-    "id_token",
-    "code token",
-    "code id_token",
-    "token id_token",
-    "code token id_token",
-    "none"
-  ],
-  "response_modes_supported": [
-    "query",
-    "fragment",
-    "login",
-    "code",
-    "link"
-  ],
-  "grant_types_supported": [
-    "password",
-    "authorization_code"
-  ],
-  "subject_types_supported": [
-    "public"
-  ],
-  "id_token_signing_alg_values_supported": [
-    "RS256"
-  ],
-  "scopes_supported": [
-    "openid",
-    "email",
-    "profile",
-    "address",
-    "phone",
-    "offline_access"
-  ],
-  "claims_supported": [
-    "iss",
-    ...
-  ],
-  "request_parameter_supported": true,
-  "request_object_signing_alg_values_supported": [
-    "HS256",
-    "HS384",
-    "HS512"
-  ],
-  "end_session_endpoint": "https://door.casdoor.com/api/logout"
-}
-```
-
-Replace the settings in this application's YAML file: [application.yml](https://github.com/casdoor/casdoor-spring-security-example/blob/master/src/main/resources/application.yml) with your own Casdoor's settings.
+In your Casdoor, create (or reuse) an organization and an application, and add `http://localhost:8080/login/oauth2/code/casdoor` to the application's **Redirect URLs**. Then fill in [application.yml](src/main/resources/application.yml):
 
 ```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          casdoor:
-            client-id: 294b09fbc17f95daf2fe
-            client-secret: dd8982f7046ccba1bbd7851d5c1ece4e52bf039d
-            scope: read,write
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/custom
-        provider:
-          casdoor:
-            authorization-uri: https://door.casdoor.com/login/oauth/authorize
-            token-uri: https://door.casdoor.com/api/login/oauth/access_token
-            user-info-uri: https://door.casdoor.com/api/get-account
-            user-name-attribute: name
+casdoor:
+  endpoint: https://door.casdoor.com          # Casdoor server URL
+  client-id: 294b09fbc17f95daf2fe             # client ID of the application
+  client-secret: dd8982f7046ccba1bbd7851d5c1ece4e52bf039d  # client secret of the application
+  organization-name: casbin                   # organization of the application
+  application-name: app-vue-python-example    # name of the application
 ```
 
-## Run the demo!
+The standard `spring.security.oauth2.client.*` properties still work and override what the starter sets, for example `spring.security.oauth2.client.registration.casdoor.scope`.
 
-In the browser, visit: http://localhost:8080/foos. It will automatically redirect to Casdoor's login page. Login with username: `admin` and password: `123`.
+## Run
 
-If you visit your root page: http://localhost:8080, you will see:
+```shell
+git clone https://github.com/casdoor/casdoor-spring-security-example
+cd casdoor-spring-security-example
+mvn spring-boot:run
+```
 
-![Casdoor Application Setting](https://casdoor.org/assets/images/spring_security_welcome-5a0d467a89d0134ed035b7718f3c834d.png)
+Open http://localhost:8080 and click **Login**. On the demo server, sign in with username `admin` and password `123`.
 
-Click the `Login` button to redirect to Casdoor's login page.
+Run the tests:
 
-![Casdoor Application Setting](https://casdoor.org/assets/images/spring_security_casdoor-c0e156eb1514956214cad0b0d8d3ac98.png)
+```shell
+mvn verify
+```
 
-After you logged in, the page will redirect to `/foos`.
+## Resources
 
-![Casdoor Application Setting](https://casdoor.org/assets/images/spring_security_resource-820aab1821d09e451632a46bb73df602.png)
+- [Casdoor documentation](https://casdoor.ai/docs/overview)
+- [Casdoor Spring Security integration](https://casdoor.ai/docs/integration/java/spring-security/spring-security-oauth/)
+- [casdoor-spring-boot-starter](https://github.com/casdoor/casdoor-spring-boot-starter)
+- [Spring Security OAuth2 login](https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html)
 
-## How is this demo developed? (No need for actions)
+## License
 
-1. Create a Spring Boot application in `SSOClientApplication`.
-
-2. Add a configuration which protects all endpoints except `/` and `/login**` for users to login `UiSecurityConfiguration`.
-
-3. Add a naive page for user to login in `resources/templates/index.html`. When user clicks the `login` button, he will be redirected to `casdoor`.
-
-4. Define our protected resource. We can export an endpoint called `/foos` and a web page for display.
+[Apache-2.0](LICENSE)
